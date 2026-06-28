@@ -21,7 +21,13 @@ def test_claude_continuation_argv():
 
 def test_codex_continuation_uses_resume():
     argv = CodexAdapter().build_argv("p", is_continuation=True)
-    assert argv == ["codex", "exec", "resume", "--last", "p"]
+    assert argv == ["codex", "exec", "resume", "--last", "--skip-git-repo-check", "p"]
+
+
+def test_codex_first_turn_skips_git_check():
+    # The isolated per-conversation dir is not a git repo, so this flag is mandatory.
+    argv = CodexAdapter().build_argv("p", is_continuation=False)
+    assert argv == ["codex", "exec", "--skip-git-repo-check", "p"]
 
 
 def test_generic_requires_command():
