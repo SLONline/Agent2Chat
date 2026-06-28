@@ -4,9 +4,10 @@ Commands:
   setup       interactive wizard (choose platform + agent, enter secrets, authorize yourself)
   slack-init  guided Slack app setup — shows the manifest to paste, collects tokens
   run         start the bridge
-  doctor    check the current config, agent availability and platform connectivity
-  notify    push a message to the first allow-listed user (for cron/background jobs)
-  version   print the version
+  doctor      check the current config, agent availability and platform connectivity
+  notify      push a message to the first allow-listed user (for cron/background jobs)
+  service     print a systemd/launchd unit to run the bridge in the background
+  version     print the version
 """
 from __future__ import annotations
 
@@ -117,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     nt = sub.add_parser("notify", help="push a message to the owner (for cron/background jobs)")
     nt.add_argument("message", nargs="?", help="text to send (omit to read from stdin)")
     nt.add_argument("--config", help="path to a specific config")
+    sv = sub.add_parser("service", help="print a systemd/launchd unit to run the bridge in the background")
+    sv.add_argument("--config", help="bake this config path into the unit")
     sub.add_parser("version", help="print the version")
 
     args = parser.parse_args(argv)
@@ -134,6 +137,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_doctor(args)
     if args.command == "notify":
         return _cmd_notify(args)
+    if args.command == "service":
+        from . import service
+        _apply_config_arg(args)
+        return service.print_instructions()
     if args.command == "version":
         print(__version__)
         return 0

@@ -173,30 +173,39 @@ Point Agent2Chat at any CLI:
 
 ---
 
-## Run as a service
+## Run in the background
 
-Run multiple bridges from one install by pointing each at its own config:
+Generate a service unit tailored to your machine (`service` writes the unit to stdout and
+the setup steps to stderr, so the redirect captures only the unit):
 
 ```bash
-python -m agent2chat run --config /etc/agent2chat/telegram.json
-python -m agent2chat run --config /etc/agent2chat/slack.json
+# Linux (systemd user service — no root, survives logout/reboot):
+mkdir -p ~/.config/systemd/user
+python3 -m agent2chat service > ~/.config/systemd/user/agent2chat.service
+systemctl --user daemon-reload
+systemctl --user enable --now agent2chat
+loginctl enable-linger "$USER"            # keep running after logout / across reboots
+journalctl --user -u agent2chat -f         # watch logs
+# Stop:  systemctl --user disable --now agent2chat
 ```
 
-A minimal systemd unit:
+On macOS the same command emits a launchd plist (with `launchctl` instructions).
 
-```ini
-[Unit]
-Description=Agent2Chat (slack)
-After=network-online.target
+**Quick and dirty** (no service manager — dies on logout):
 
-[Service]
-ExecStart=/usr/bin/python -m agent2chat run --config /etc/agent2chat/slack.json
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
+```bash
+nohup python3 -m agent2chat run > ~/agent2chat.log 2>&1 &
+tail -f ~/agent2chat.log
 ```
+
+**Multiple bridges** from one install — point each at its own config:
+
+```bash
+python3 -m agent2chat run --config /etc/agent2chat/telegram.json
+python3 -m agent2chat run --config /etc/agent2chat/slack.json
+```
+
+Pass `--config` to `service` too, and it bakes that path into the generated unit.
 
 ### Proactive notifications
 
