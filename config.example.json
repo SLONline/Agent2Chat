@@ -1,0 +1,24 @@
+{
+  "_comment": "Copy this to ~/.config/agent2chat/config.json (or set AGENT2CHAT_CONFIG). Fill in the section for your chosen platform; delete the others. Secrets can instead be supplied via environment variables (see the README).",
+
+  "platform": "telegram",
+  "agent": "claude-code",
+  "allowed_user_ids": ["123456789"],
+
+  "workdir": "",
+  "command": null,
+  "continue_command": null,
+  "agent_timeout": 600,
+
+  "telegram_token": "123456789:AA-your-bot-token",
+  "poll_timeout": 50,
+
+  "slack_bot_token": "xoxb-...",
+  "slack_app_token": "xapp-...",
+
+  "teams_app_id": "00000000-0000-0000-0000-000000000000",
+  "teams_app_password": "your-client-secret",
+  "teams_tenant_id": "",
+  "webhook_host": "0.0.0.0",
+  "webhook_port": 3978
+}

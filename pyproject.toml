@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent2chat"
+version = "0.1.0"
+description = "Connect a local AI agent (Claude Code, Codex or any CLI) to Telegram, Slack or Microsoft Teams."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "SLOnline" }]
+keywords = ["telegram", "slack", "teams", "claude-code", "codex", "agent", "bot", "bridge"]
+# The runtime intentionally has ZERO third-party dependencies (stdlib only) so it installs
+# cleanly anywhere — including the WebSocket client used for Slack Socket Mode. That is a
+# feature, not an omission.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/SLOnline/Agent2Chat"
+Repository = "https://github.com/SLOnline/Agent2Chat"
+
+[project.scripts]
+agent2chat = "agent2chat.__main__:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["agent2chat*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
