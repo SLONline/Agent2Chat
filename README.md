@@ -46,15 +46,31 @@ chat platform ──▶ Connector ──▶ Bridge ──▶ Adapter ──▶ a
 
 ## Quick start
 
+The runtime is stdlib-only, so you don't need to install anything to run it — just
+clone and go:
+
 ```bash
 git clone https://github.com/SLOnline/Agent2Chat.git
 cd Agent2Chat
-pip install -e .
-
-python -m agent2chat setup     # interactive: pick platform + agent, enter secrets
-python -m agent2chat doctor    # verify config, agent binary and platform connectivity
-python -m agent2chat run       # start the bridge
+python3 -m agent2chat setup     # interactive: pick platform + agent, enter secrets
+python3 -m agent2chat doctor    # verify config, agent binary and platform connectivity
+python3 -m agent2chat run       # start the bridge
 ```
+
+Want the bare `agent2chat` command on your PATH (and to run the tests)? Install it into
+a virtual environment:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+agent2chat run
+```
+
+> **Ubuntu/Debian: `error: externally-managed-environment`?** That's
+> [PEP 668](https://peps.python.org/pep-0668/) refusing to let `pip` touch the system
+> Python. Either run from source with `python3 -m agent2chat …` (no install needed — see
+> above), use the venv above (`sudo apt install python3-venv` if missing), or
+> `pipx install .`. Don't use `--break-system-packages`.
 
 In chat, message the bot. Built-in commands:
 
