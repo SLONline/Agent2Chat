@@ -47,8 +47,8 @@ def run() -> int:
     if platform == "telegram":
         cfg.telegram_token = _ask("Telegram bot token (from @BotFather)")
     elif platform == "slack":
-        cfg.slack_bot_token = _ask("Slack bot token (xoxb-…)")
-        cfg.slack_app_token = _ask("Slack app-level token (xapp-…)")
+        from . import slack_setup
+        cfg.slack_bot_token, cfg.slack_app_token, _ = slack_setup.collect_tokens()
     elif platform == "teams":
         cfg.teams_app_id = _ask("Teams app (client) id")
         cfg.teams_app_password = _ask("Teams client secret")

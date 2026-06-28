@@ -93,12 +93,29 @@ Anyone not in `allowed_user_ids` is refused — send `/id`, then add your id to 
 3. Run the bridge, message your bot, `/id`, add your id to `allowed_user_ids`.
 
 ### Slack (Socket Mode)
-1. Create a Slack app → enable **Socket Mode**.
-2. Add an **app-level token** with `connections:write` → `slack_app_token` (`xapp-…`).
-3. Add bot scopes `chat:write`, `app_mentions:read`, `im:history`; install the app →
-   `slack_bot_token` (`xoxb-…`).
-4. Subscribe to events `app_mention` and `message.im`.
-5. `platform: "slack"`, set both tokens. DM the bot or @-mention it in a channel.
+
+The fastest path is the **guided helper** — it asks for an app name, prints a ready-to-paste
+manifest tailored to that name, walks you through each click, and saves the tokens:
+
+```bash
+python3 -m agent2chat slack-init      # (the main `setup` does the same when you pick Slack)
+```
+
+It cuts setup to two manual token grabs. What it does for you and what stays manual:
+
+| Step | Who does it |
+| --- | --- |
+| Create the app + all config (scopes, events, Socket Mode) | you paste the generated **manifest** at [api.slack.com/apps](https://api.slack.com/apps) → *Create New App → From a manifest* |
+| Install to workspace → **Bot User OAuth Token** (`xoxb-…`) | click *Install → Allow*, paste it back |
+| **App-Level Token** (`xapp-…`, scope `connections:write`) | *Basic Information → App-Level Tokens → Generate*, paste it back |
+
+> Slack has no API to fully create + install an app unattended (the config token,
+> app-level token, and install click each need a human in the browser), so the helper
+> automates the configuration and guides the rest. See the FAQ below.
+
+Prefer to do it by hand? Create an app from a manifest with bot scopes `chat:write`,
+`app_mentions:read`, `im:history`, event subscriptions `app_mention` + `message.im`, and
+Socket Mode enabled; then set `slack_bot_token` and `slack_app_token` in the config.
 
 ### Microsoft Teams (Bot Framework)
 1. Create an **Azure Bot** resource + App Registration; note the **App ID** and a

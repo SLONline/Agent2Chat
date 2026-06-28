@@ -1,8 +1,9 @@
 """Command-line entry point: ``python -m agent2chat <command>``.
 
 Commands:
-  setup     interactive wizard (choose platform + agent, enter secrets, authorize yourself)
-  run       start the bridge
+  setup       interactive wizard (choose platform + agent, enter secrets, authorize yourself)
+  slack-init  guided Slack app setup — shows the manifest to paste, collects tokens
+  run         start the bridge
   doctor    check the current config, agent availability and platform connectivity
   notify    push a message to the first allow-listed user (for cron/background jobs)
   version   print the version
@@ -107,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("setup", help="interactive setup wizard")
+    si = sub.add_parser("slack-init", help="guided Slack app setup (shows the manifest to paste)")
+    si.add_argument("--config", help="path to a specific config to write")
     run_p = sub.add_parser("run", help="start the bridge")
     run_p.add_argument("--config", help="path to a specific config (run multiple bridges)")
     doc = sub.add_parser("doctor", help="diagnose config, agent and platform connectivity")
@@ -122,6 +125,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "setup":
         from . import wizard
         return wizard.run()
+    if args.command == "slack-init":
+        from . import slack_setup
+        return slack_setup.run(config=getattr(args, "config", None))
     if args.command == "run":
         return _cmd_run(args)
     if args.command == "doctor":
