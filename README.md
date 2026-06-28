@@ -203,7 +203,9 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"   # add to ~/.bashrc
 sensible PATH so the agent binary is found):
 
 ```bash
-sudo python3 -m agent2chat service --system > /etc/systemd/system/agent2chat.service
+# 'sudo tee' writes the file as root — a plain '>' redirect runs as your shell and fails
+python3 -m agent2chat service --system | sudo tee /etc/systemd/system/agent2chat.service > /dev/null
+grep User= /etc/systemd/system/agent2chat.service    # sanity-check: should be your user, not root
 sudo systemctl daemon-reload
 sudo systemctl enable --now agent2chat
 journalctl -u agent2chat -f

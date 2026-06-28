@@ -125,7 +125,9 @@ def print_instructions(system: bool = False) -> int:
         sys.stdout.write(_systemd_system_unit())
         print(
             "\n# systemd SYSTEM-service setup (Linux, needs root — no user bus required):\n"
-            "#   sudo python3 -m agent2chat service --system > /etc/systemd/system/agent2chat.service\n"
+            "#   # use 'sudo tee' to write the file: a plain '>' redirect runs as your shell, not root\n"
+            "#   python3 -m agent2chat service --system | sudo tee /etc/systemd/system/agent2chat.service > /dev/null\n"
+            "#   grep User= /etc/systemd/system/agent2chat.service   # confirm it's not 'root'\n"
             "#   sudo systemctl daemon-reload\n"
             "#   sudo systemctl enable --now agent2chat\n"
             "#   systemctl status agent2chat\n"
