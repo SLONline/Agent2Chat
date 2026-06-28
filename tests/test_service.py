@@ -11,6 +11,14 @@ def test_systemd_unit_has_exec_and_restart():
     assert "WantedBy=default.target" in unit
 
 
+def test_system_unit_runs_as_user_and_boots():
+    unit = service._systemd_system_unit()
+    assert "User=" in unit
+    assert "WantedBy=multi-user.target" in unit
+    assert "Environment=HOME=" in unit
+    assert "Environment=PATH=" in unit       # extend PATH so claude/codex are found
+
+
 def test_launchd_plist_well_formed():
     plist = service._launchd_plist()
     assert "com.slonline.agent2chat" in plist

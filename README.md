@@ -191,6 +191,24 @@ journalctl --user -u agent2chat -f         # watch logs
 
 On macOS the same command emits a launchd plist (with `launchctl` instructions).
 
+**Headless server / `Failed to connect to user scope bus`?** SSH sessions often have no
+per-user systemd bus. Either enable a persistent one —
+
+```bash
+sudo loginctl enable-linger "$USER"
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"   # add to ~/.bashrc
+```
+
+— or skip the user bus entirely with a **system service** (`--system` sets `User=` and a
+sensible PATH so the agent binary is found):
+
+```bash
+sudo python3 -m agent2chat service --system > /etc/systemd/system/agent2chat.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now agent2chat
+journalctl -u agent2chat -f
+```
+
 **Quick and dirty** (no service manager — dies on logout):
 
 ```bash

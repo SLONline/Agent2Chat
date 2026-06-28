@@ -120,6 +120,8 @@ def main(argv: list[str] | None = None) -> int:
     nt.add_argument("--config", help="path to a specific config")
     sv = sub.add_parser("service", help="print a systemd/launchd unit to run the bridge in the background")
     sv.add_argument("--config", help="bake this config path into the unit")
+    sv.add_argument("--system", action="store_true",
+                    help="emit a system-wide unit (root, no per-user bus) instead of a user service")
     sub.add_parser("version", help="print the version")
 
     args = parser.parse_args(argv)
@@ -140,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "service":
         from . import service
         _apply_config_arg(args)
-        return service.print_instructions()
+        return service.print_instructions(system=getattr(args, "system", False))
     if args.command == "version":
         print(__version__)
         return 0
