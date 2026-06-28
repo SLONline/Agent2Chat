@@ -21,6 +21,31 @@ from pathlib import Path
 from .config import CONFIG_ENV, config_path
 
 
+def _agent_bin_dir() -> str:
+    """Best-effort directory holding the configured agent's binary, so the generated unit
+    can put it on ``PATH``. Resolved from the *current* shell — run the generator as the
+    same user that will run the service and a working ``codex``/``claude`` is found here.
+    Returns ``""`` when it can't be determined (no config, agent not installed, etc.)."""
+    try:
+        import shutil
+
+        from . import adapters
+        from .config import load
+        cfg = load()
+        if cfg.agent == "generic" and cfg.command:
+            binary = cfg.command[0]
+        else:
+            cls = adapters.REGISTRY.get(cfg.agent)
+            binary = cls.binary if cls else ""
+        if binary:
+            found = shutil.which(binary)
+            if found:
+                return str(Path(found).resolve().parent)
+    except Exception:
+        pass
+    return ""
+
+
 def _target_user() -> tuple[str, str]:
     """The user the service should run as, and their home. Honours ``$SUDO_USER`` so
     ``sudo python -m agent2chat service --system`` targets the real user, not root."""
@@ -54,6 +79,11 @@ def _exec_start() -> str:
 
 
 def _systemd_unit() -> str:
+    # A user service inherits the user-manager PATH, but that can still miss nvm/npm dirs,
+    # so pin the detected agent dir when we found one.
+    agent_dir = _agent_bin_dir()
+    path_line = (f"Environment=PATH={agent_dir}:%h/.local/bin:/usr/local/bin:/usr/bin:/bin\n"
+                 if agent_dir else "")
     return f"""[Unit]
 Description=Agent2Chat bridge
 After=network-online.target
@@ -64,7 +94,7 @@ Type=simple
 ExecStart={_exec_start()}
 WorkingDirectory={_workdir()}
 Environment=PYTHONUNBUFFERED=1
-Restart=always
+{path_line}Restart=always
 RestartSec=3
 
 [Install]
@@ -74,9 +104,12 @@ WantedBy=default.target
 
 def _systemd_system_unit() -> str:
     user, home = _target_user()
-    # System units have a minimal PATH, so extend it to where claude/codex commonly land
-    # (user-local bin and the npm global prefix), and set HOME so the agent finds its auth.
+    # System units have a minimal PATH, so extend it to where claude/codex commonly land,
+    # prepending the directory we actually detected for the configured agent.
     path = f"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{home}/.local/bin:{home}/.npm-global/bin:{home}/.nvm/current/bin"
+    agent_dir = _agent_bin_dir()
+    if agent_dir and agent_dir not in path.split(":"):
+        path = f"{agent_dir}:{path}"
     return f"""[Unit]
 Description=Agent2Chat bridge
 After=network-online.target

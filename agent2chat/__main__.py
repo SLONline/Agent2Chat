@@ -54,9 +54,16 @@ def _cmd_doctor(args) -> int:
         return 2
     print("config:", cfg.redacted())
 
+    import shutil
     agent_cls = adapters.REGISTRY.get(cfg.agent)
     agent_ok = agent_cls.detect() if agent_cls else False
-    print(f"agent '{cfg.agent}': {'✓ binary found' if agent_ok else '✗ binary NOT found on PATH'}")
+    binary = (cfg.command[0] if cfg.agent == "generic" and cfg.command
+              else (agent_cls.binary if agent_cls else ""))
+    where = shutil.which(binary) if binary else None
+    if agent_ok and where:
+        print(f"agent '{cfg.agent}': ✓ {where}")
+    else:
+        print(f"agent '{cfg.agent}': ✗ binary '{binary}' NOT found on PATH")
 
     if not cfg.allowed_user_ids:
         print("⚠️  allowed_user_ids is empty — the bot will refuse everyone.")
