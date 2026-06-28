@@ -114,8 +114,14 @@ It cuts setup to two manual token grabs. What it does for you and what stays man
 > automates the configuration and guides the rest. See the FAQ below.
 
 Prefer to do it by hand? Create an app from a manifest with bot scopes `chat:write`,
-`app_mentions:read`, `im:history`, event subscriptions `app_mention` + `message.im`, and
-Socket Mode enabled; then set `slack_bot_token` and `slack_app_token` in the config.
+`app_mentions:read`, `im:history`, event subscriptions `app_mention` + `message.im`,
+Socket Mode enabled, and the **App Home Messages tab** enabled; then set
+`slack_bot_token` and `slack_app_token` in the config.
+
+> **“Sending messages to this app has been turned off.”** Slack's Messages tab is off by
+> default. Fix it under *Features → App Home → Show Tabs*: enable **Messages Tab** and
+> tick **“Allow users to send Slash commands and messages from the messages tab.”** Apps
+> created with the current manifest already have this on.
 
 ### Microsoft Teams (Bot Framework)
 1. Create an **Azure Bot** resource + App Registration; note the **App ID** and a
